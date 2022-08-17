@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_hooks: ^0.18.5+1
   hooks_riverpod: ^1.0.4
-  supabase_flutter: ^1.0.0-dev.1
+  supabase_flutter: ^0.3.3
   pedantic_mono: ^1.19.2
   bitsdojo_window: ^0.1.2
   window_manager: ^0.2.5

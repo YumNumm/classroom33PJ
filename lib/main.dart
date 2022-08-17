@@ -4,7 +4,6 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:projector/page/root.dart';
 import 'package:projector/private/key.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:window_manager/window_manager.dart';
@@ -14,7 +13,7 @@ Future<void> main() async {
   await windowManager.ensureInitialized();
   await Supabase.initialize(
     url: supabaseUrl,
-    anonKey: supabaseUrl,
+    anonKey: supabaseKey,
     debug: kDebugMode,
   );
   await runZonedGuarded(
@@ -92,7 +91,7 @@ class MainWidget extends StatelessWidget {
               ),
             ),
             // 本体部分
-            const RootPage(),
+            // const RootPage(),
           ],
         ),
       ),
