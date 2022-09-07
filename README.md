@@ -1,16 +1,53 @@
-# projector
+# Classroom 33 PJ - Projector
 
 A new Flutter project.
 
-## Getting Started
+## 遷移
 
-This project is a starting point for a Flutter application.
+- Projectorの選択
 
-A few resources to get you started if this is your first Flutter project:
+### [Projectorの場合]
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+-> stateの判別
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `waiting`
+  問答無用で待機画面
+- `running`
+  1. userIdからUserModelを取得
+  2. 自分が対象となる大問IDを確認
+  3. 大問データを取得
+  4. タイマー開始
+
+## Build時のメモ
+
+```
+msvcp140.dll
+vcruntime140.dll
+vcruntime140_1.dll
+```
+
+を`C:\Windows\System32`から引っ張ってくる
+
+```
+Release
+├ data(フォルダー)
+├ flutter_windows.dll
+├ msvcp140.dll
+├ myapp.exe
+├ vcruntime140.dll
+├ vcruntime140_1.dll
+└ プラグインのdll(パッケージをインストールしていなければ無い)
+```
+
+## STATE
+
+| `DeviceState`(enum) | `AcceptState`(bool) | `user_id`(int?) | 画面     | 備考                             |
+|---------------------|---------------------|-----------------|--------|----------------------------------|
+| `waiting`           | --                  | --              | 待機     | 待機中(デフォルト)                    |
+| `starting`          | `false`             | [int?]              | 待機     | Controllerの承認待ち               |
+| `starting`          | `true`              | [int?]              | 待機     | Controllerの承認完了(マスター開始待ち) |
+| `running`           | --                  | [null]          | 待機     |                                  |
+| `running`           | --                  | [int]           | 出題     | 実行開始                         |
+| `emergency`         | --                  | --              | 緊急停止 | 緊急停止                         |
+`AcceptState`は`DeviceState`が`waiting`の時のみ参照する
+`int?` -> `int` | `null`
