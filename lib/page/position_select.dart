@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:projector/extension/position_color.dart';
+import 'package:projector/page/top.dart';
 
-import '../schema/state/state.dart';
+import 'package:classroom33common/classroom33common.dart';
+
 
 class PositionSelectPage extends HookConsumerWidget {
   const PositionSelectPage({super.key});

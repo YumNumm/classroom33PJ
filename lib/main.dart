@@ -1,42 +1,52 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'provider/big_question_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'page/home_page.dart';
 import 'page/position_select.dart';
 import 'private/key.dart';
 
 Future<void> main() async {
+   SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // transparent status bar
+    ),
+  );
   WidgetsFlutterBinding.ensureInitialized();
-
-  for (final bigQuestions in questions) {
-    print(
-      '${bigQuestions.id},${bigQuestions.title},${bigQuestions.category.title}',
-    );
-    for (final bigQuestion in bigQuestions.questions) {
-      for (final e in bigQuestion.questions) {
-        print(
-          ',,,${e.questionStatement},${e.choices.toString().replaceAll('[', '').replaceAll(']', '')},${e.correctAnswerIndex}',
-        );
-      }
-    }
-    print(',,,,,,,,');
-  }
-  return;
+  // 問題出力
+  // for (final bigQuestions in questions) {
+  //   print(
+  //     '${bigQuestions.id},${bigQuestions.title},${bigQuestions.category.title}',
+  //   );
+  //   for (final bigQuestion in bigQuestions.questions) {
+  //     for (final e in bigQuestion.questions) {
+  //       print(
+  //         ',,,${e.questionStatement},${e.choices.toString().replaceAll('[', '').replaceAll(']', '')},${e.correctAnswerIndex}',
+  //       );
+  //     }
+  //   }
+  //   print(',,,,,,,,');
+  // }
   await Supabase.initialize(
     url: supabaseUrl,
     anonKey: supabaseKey,
-    debug: kDebugMode,
+    debug: true,
   );
   await runZonedGuarded(
     () async {
       runApp(
-        ProviderScope(child: HomePage()),
+        ProviderScope(child: MaterialApp(
+          theme: ThemeData(
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            useMaterial3: true,
+            colorSchemeSeed: const Color.fromARGB(255, 0, 94, 255),
+            fontFamily: 'NotoSansJP',
+          ),
+          home: const MyApp(),
+        ),),
       );
     },
     (error, stack) {

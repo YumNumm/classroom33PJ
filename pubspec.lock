@@ -113,6 +113,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  classroom33common:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "96b7d9663ecf8787b19e282906202a1a401c95b8"
+      url: "git@github.com:YumNumm/classroom33Common.git"
+    source: git
+    version: "0.0.1"
   clock:
     dependency: transitive
     description:
@@ -331,6 +340,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.1"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -583,13 +599,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.3"
-  screen_retriever:
-    dependency: transitive
-    description:
-      name: screen_retriever
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   shelf:
     dependency: transitive
     description:
@@ -707,6 +716,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  toggle_switch:
+    dependency: "direct main"
+    description:
+      name: toggle_switch
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   tuple:
     dependency: transitive
     description:
@@ -833,13 +849,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.6.1"
-  window_manager:
-    dependency: "direct main"
-    description:
-      name: window_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.5"
   xdg_directories:
     dependency: transitive
     description:
@@ -862,5 +871,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.3 <3.0.0"
+  dart: ">=2.17.6 <3.0.0"
   flutter: ">=3.0.0"

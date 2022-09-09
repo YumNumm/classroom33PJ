@@ -1,97 +1,106 @@
+import 'package:classroom33common/classroom33common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../provider/big_question_storage.dart';
-
-import '../../provider/projector/timer_provider.dart';
-import '../../schema/question/big_question_item.dart';
-import '../../schema/question/small_question_item.dart';
-import '../../schema/user/user_model.dart';
-
-class OnQuestionPage extends HookConsumerWidget {
-  const OnQuestionPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    //! 対象となるユーザデータを取得する
-    return FutureBuilder(
-      future: SupabaseApi.getUserData(
-        ref.read(deviceStateStreamProvider).value?.userId,
-      ),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
-          case ConnectionState.done:
-            if (snapshot.data == null) {
-              return const Center(child: Text('ユーザデータが存在しません'));
-            }
-            return QuestionDataFetchWidget(snapshot.data! as UserModel);
-          case ConnectionState.active:
-            return const Text('active');
-          case ConnectionState.none:
-            return const Text('none');
-        }
-      },
-    );
-  }
-}
-
-/// 問題データ取得部分
-class QuestionDataFetchWidget extends HookConsumerWidget {
-  const QuestionDataFetchWidget(this.user, {super.key});
-  final UserModel user;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bigQuestion = ref
-        .watch(questionProvider)
-        .firstWhere((e) => e.id == user.bigQuestionGroupId);
-    return QuestionViewerWidget(
-      bigQuestion.questions[ref.read(selectedDeviceIdProvider)!.positionId - 1],
-    );
-  }
-}
 
 // 問題表示部分
-class QuestionViewerWidget extends HookConsumerWidget {
-  const QuestionViewerWidget(this.question, {super.key});
-  final BigQuestionItem question;
+class OnRunningPage extends HookConsumerWidget {
+  const OnRunningPage({required this.stateItem, super.key});
+  final StateItem stateItem;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(onQuestionTimerProvdier).when<Widget>(
-          data: (data) {
-            switch (data) {
-              case OnQuestionTimerState.question1:
-                return SmallQuestionWidget(question.questions[0]);
-              case OnQuestionTimerState.question2:
-                return SmallQuestionWidget(question.questions[1]);
-              case OnQuestionTimerState.question3:
-                return SmallQuestionWidget(question.questions[2]);
-              default:
-                return Center(
-                  child: Text(
-                    data.toString(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-            }
-          },
-          error: (error, stackTrace) => Text('error: $error'),
-          loading: () => const Center(
-            child: CircularProgressIndicator.adaptive(),
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: stateItem.position.onPrimary
+                .map((e) => e.withOpacity(1))
+                .toList(),
           ),
-        );
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            elevation: 10,
+            color: Colors.white.withOpacity(0.85),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            child: ref.watch(onQuestionTimerProvdier).when<Widget>(
+                  error: (error, stack) => Center(
+                    child: Text(error.toString()),
+                  ),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                  data: (data) {
+                    if (stateItem.bigQuestionGroupId == null) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: FittedBox(
+                            child: Text(
+                              'ユーザ登録がされていません',
+                              style: TextStyle(fontSize: 100),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    final question = ref
+                        .watch(questionProvider)
+                        .firstWhere((e) => e.id == stateItem.bigQuestionGroupId)
+                        .questions[stateItem.position.index];
+
+                    return Stack(
+                      children: [
+                        Column(),
+                        Row(),
+                        if (data == OnQuestionTimerState.question1)
+                          SmallQuestionWidget(question.questions[0], data),
+                        if (data == OnQuestionTimerState.question2)
+                          SmallQuestionWidget(question.questions[1], data),
+                        if (data == OnQuestionTimerState.question3)
+                          SmallQuestionWidget(question.questions[2], data),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Card(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                data.title,
+                                style: const TextStyle(
+                                  fontSize: 50,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class SmallQuestionWidget extends StatefulHookConsumerWidget {
-  const SmallQuestionWidget(this.item, {super.key});
+  const SmallQuestionWidget(this.item, this.state, {super.key});
   final SmallQuestionItem item;
+  final OnQuestionTimerState state;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -101,12 +110,13 @@ class SmallQuestionWidget extends StatefulHookConsumerWidget {
 class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
   double questionTextOpacity = 0;
   late SmallQuestionItem item;
+  late OnQuestionTimerState state;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     item = widget.item;
+    state = widget.state;
     questionTextOpacity = 1;
   }
 
@@ -116,15 +126,7 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Row(),
-
         // 問題
-        const Text(
-          '第2問',
-          style: TextStyle(
-            fontSize: 100,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(24),
           child: FittedBox(
@@ -136,7 +138,9 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                   child: Math.tex(
                     item.questionStatement,
                     textStyle: const TextStyle(
-                      fontSize: 800,
+                      fontFamily: 'UDDigiKyokashoN-R',
+                      fontSize: 1000,
+                      fontWeight: FontWeight.bold,
                     ),
                     onErrorFallback: (err) => Container(
                       color: const Color.fromARGB(255, 144, 10, 0),
@@ -164,13 +168,13 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                 Flexible(
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         minRadius: 30,
-                        backgroundColor: Color.fromARGB(255, 255, 157, 157),
-                        child: Text(
+                        backgroundColor: 1.correctAnswerColor,
+                        child: const Text(
                           '1',
                           style: TextStyle(
-                            fontSize: 80,
+                            fontSize: 50,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -192,13 +196,13 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                 Flexible(
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         minRadius: 30,
-                        backgroundColor: Color.fromARGB(255, 178, 149, 255),
-                        child: Text(
+                        backgroundColor: 2.correctAnswerColor,
+                        child: const Text(
                           '2',
                           style: TextStyle(
-                            fontSize: 80,
+                            fontSize: 50,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -227,13 +231,13 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                 Flexible(
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         minRadius: 30,
-                        backgroundColor: Color.fromARGB(255, 255, 197, 130),
-                        child: Text(
+                        backgroundColor: 3.correctAnswerColor,
+                        child: const Text(
                           '3',
                           style: TextStyle(
-                            fontSize: 80,
+                            fontSize: 50,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -255,10 +259,10 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                 Flexible(
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         minRadius: 30,
-                        backgroundColor: Color.fromARGB(255, 119, 255, 141),
-                        child: Text(
+                        backgroundColor: 4.correctAnswerColor,
+                        child: const Text(
                           '4',
                           style: TextStyle(
                             fontSize: 50,
@@ -280,12 +284,82 @@ class _SmallQuestionWidgetState extends ConsumerState<SmallQuestionWidget> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
               ],
             ),
           ],
-        )
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: AnimatedProgressBar(
+            duration: state.duration,
+            showPercent: false,
+          ),
+        ),
       ],
+    );
+  }
+}
+
+/// ProgressBarのAnimation
+/// [duration] は、アニメーションの時間(ms)
+/// [showPercent] パーセンテージを表示するか
+class AnimatedProgressBar extends StatefulHookConsumerWidget {
+  const AnimatedProgressBar({
+    this.showPercent = true,
+    required this.duration,
+    super.key,
+  });
+
+  /// 待機時間(ms)
+  final int duration;
+
+  /// パーセンテージを表示するか
+  final bool showPercent;
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _AnimatedProgressBarState();
+}
+
+class _AnimatedProgressBarState extends ConsumerState<AnimatedProgressBar> {
+  @override
+  Widget build(BuildContext context) {
+    final duration = widget.duration;
+    final showPercent = widget.showPercent;
+
+    final controller = useAnimationController(
+      duration: Duration(milliseconds: duration),
+    );
+
+    final animatable = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).chain(CurveTween(curve: Curves.linear));
+
+    final animation = animatable.animate(controller);
+
+    // 描画されたらAnimation開始
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.forward();
+    });
+
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        if (showPercent) {
+          return Row(
+            children: [
+              Text('${(animation.value * 100).toStringAsFixed(0)}%'),
+              LinearProgressIndicator(
+                value: animation.value,
+                minHeight: 8,
+              )
+            ],
+          );
+        }
+        return LinearProgressIndicator(
+          value: animation.value,
+        );
+      },
     );
   }
 }
