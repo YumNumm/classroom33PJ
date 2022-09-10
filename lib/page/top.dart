@@ -1,10 +1,9 @@
+import 'package:classroom33common/classroom33common.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:projector/page/projector/onQuestion.dart';
 import 'package:projector/page/projector/on_user_choice.dart';
 import 'package:projector/page/projector/on_waiting_for_admin.dart';
-import 'package:classroom33common/classroom33common.dart';
-
 
 class StateDistributorPage extends HookConsumerWidget {
   const StateDistributorPage({required this.position, super.key});
@@ -16,7 +15,9 @@ class StateDistributorPage extends HookConsumerWidget {
               (data.bigQuestionState == BigQuestionState.waitingForController)
                   ? OnUserChoicePage(stateItem: data)
                   : (data.bigQuestionState == BigQuestionState.running)
-                      ? OnRunningPage(stateItem: data)
+                      ? OnRunningPage(
+                          stateItem: data
+                        )
                       : OnWaitingForAdminPage(stateItem: data),
           loading: () => Scaffold(
             appBar: AppBar(
