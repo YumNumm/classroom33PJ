@@ -23,7 +23,6 @@ dependencies:
     git:
       url: git@github.com:YumNumm/classroom33Common.git
 
-
 dev_dependencies:
   build_runner: ^2.2.0
 

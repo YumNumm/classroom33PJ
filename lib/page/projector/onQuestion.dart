@@ -11,87 +11,153 @@ class OnRunningPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: stateItem.position.onPrimary
-                .map((e) => e.withOpacity(1))
-                .toList(),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            elevation: 10,
-            color: Colors.white.withOpacity(0.85),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40),
+      body: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: stateItem.position.onPrimary
+                    .map((e) => e.withOpacity(1))
+                    .toList(),
+              ),
             ),
-            child: ref.watch(onQuestionTimerProvdier).when<Widget>(
-                  error: (error, stack) => Center(
-                    child: Text(error.toString()),
-                  ),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  ),
-                  data: (data) {
-                    if (stateItem.bigQuestionGroupId == null) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: FittedBox(
-                            child: Text(
-                              'ユーザ登録がされていません',
-                              style: TextStyle(fontSize: 100),
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    final question = ref
-                        .watch(questionProvider)
-                        .firstWhere((e) => e.id == stateItem.bigQuestionGroupId)
-                        .questions[stateItem.position.index];
-
-                    return Stack(
-                      children: [
-                        Column(),
-                        Row(),
-                        if (data == OnQuestionTimerState.question1)
-                          SmallQuestionWidget(question.questions[0], data),
-                        if (data == OnQuestionTimerState.question2)
-                          SmallQuestionWidget(question.questions[1], data),
-                        if (data == OnQuestionTimerState.question3)
-                          SmallQuestionWidget(question.questions[2], data),
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Card(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
-                            ),
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Card(
+                clipBehavior: Clip.antiAlias,
+                elevation: 10,
+                color: Colors.white.withOpacity(0.85),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: ref.watch(onQuestionTimerProvdier).when<Widget>(
+                      error: (error, stack) => Center(
+                        child: Text(error.toString()),
+                      ),
+                      loading: () => const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                      data: (data) {
+                        if (stateItem.bigQuestionGroupId == null) {
+                          return const Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(
-                                data.title,
-                                style: const TextStyle(
-                                  fontSize: 50,
-                                  fontWeight: FontWeight.bold,
+                              padding: EdgeInsets.all(20),
+                              child: FittedBox(
+                                child: Text(
+                                  'ユーザ登録がされていません',
+                                  style: TextStyle(fontSize: 100),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                          );
+                        }
+                        final question = ref
+                            .watch(questionProvider)
+                            .firstWhere(
+                              (e) => e.id == stateItem.bigQuestionGroupId,
+                            )
+                            .questions[stateItem.position.index];
+
+                        return Stack(
+                          children: [
+                            Column(),
+                            Row(),
+                            if (data == OnQuestionTimerState.question1)
+                              SmallQuestionWidget(question.questions[0], data),
+                            if (data == OnQuestionTimerState.question2)
+                              SmallQuestionWidget(question.questions[1], data),
+                            if (data == OnQuestionTimerState.question3)
+                              SmallQuestionWidget(question.questions[2], data),
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Card(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    data.title,
+                                    style: const TextStyle(
+                                      fontSize: 50,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+              ),
+            ),
           ),
-        ),
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //     crossAxisAlignment: CrossAxisAlignment.end,
+          //     children: [
+          //       CircleAvatar(
+          //
+          //         minRadius: 30,
+          //         backgroundColor: 1.correctAnswerColor,
+          //         child: const Text(
+          //           '1',
+          //           style: TextStyle(
+          //             fontSize: 50,
+          //             fontWeight: FontWeight.bold,
+          //             color: Colors.black,
+          //           ),
+          //         ),
+          //       ),
+          //       CircleAvatar(
+          //         minRadius: 30,
+          //         backgroundColor: 2.correctAnswerColor,
+          //         child: const Text(
+          //           '2',
+          //           style: TextStyle(
+          //             fontSize: 50,
+          //             fontWeight: FontWeight.bold,
+          //             color: Colors.black,
+          //           ),
+          //         ),
+          //       ),
+          //       CircleAvatar(
+          //         minRadius: 30,
+          //         backgroundColor: 3.correctAnswerColor,
+          //         child: const Text(
+          //           '3',
+          //           style: TextStyle(
+          //             fontSize: 50,
+          //             fontWeight: FontWeight.bold,
+          //             color: Colors.black,
+          //           ),
+          //         ),
+          //       ),
+          //       CircleAvatar(
+          //         minRadius: 30,
+          //         backgroundColor: 4.correctAnswerColor,
+          //         child: const Text(
+          //           '4',
+          //           style: TextStyle(
+          //             fontSize: 50,
+          //             fontWeight: FontWeight.bold,
+          //             color: Colors.black,
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+        ],
       ),
     );
   }
